@@ -59,12 +59,6 @@ return {
                     domoticz.notify('Heatpump turned on by thermostat')
                     domoticz.log('Heatpump turned on by thermostat: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
         
-        elseif  ((target_temp.temperature < 26) and  -- Make sure Ta-target never gets below 26
-                (ShiftManual.setPoint <= -1)) then
-                    Shift=0
-                    ShiftManual.updateSetPoint(Shift)
-                    domoticz.log('Target water outlet temperature below 26 --> Shift manual set to [0]', domoticz.LOG_DEBUG)
-        
         elseif  ((roomTemperature > (setPoint + 1)) or
                 (roomTemperature < (setPoint - 1))) and
                 (domoticz.devices(wpSwitchId).state == 'On') then
@@ -76,10 +70,19 @@ return {
                 (domoticz.devices(wpSwitchId).state == 'On')) then
                     domoticz.log('Heatpump is ON and not changed: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
         
-         elseif (domoticz.devices(wpSwitchId).state == 'Off') then
+        elseif  (domoticz.devices(wpSwitchId).state == 'Off') then
                     domoticz.log('Heatpump is OFF. Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
                     end
-        
+---------------------------------------------
+-- Make sure Ta-target never gets below 26 --
+---------------------------------------------
+        if      ((target_temp.temperature < 26) and
+                (ShiftManual.setPoint <= -1)) then
+                    Shift=0
+                    ShiftManual.updateSetPoint(Shift)
+                    domoticz.log('Target water outlet temperature below 26 --> Shift manual set to [0]', domoticz.LOG_DEBUG)
+                    end
+
         domoticz.devices(thermostaat).updateSetPoint(setPoint) -- update dummy sensor in case of red indicator ;-)
         domoticz.log('End script. Shift manual last triggered: ' .. ShiftManual.lastUpdate.minutesAgo..' minutes ago', domoticz.LOG_INFO)
     end
