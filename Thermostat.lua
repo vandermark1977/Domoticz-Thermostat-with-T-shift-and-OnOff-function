@@ -12,80 +12,75 @@ return {
 
     execute = function(domoticz, item)
 
-        local switchWp = true                       -- set to true if you want to switch on/off the heater
-        local thermostaat = 146                     -- Dummy thermostat device
+        local thermostaat = 146                     -- Dummy thermostaat device
         local roomTemperatureId = 42                -- Temperature measurement
         local wpSwitchId = 60                       -- Heatpump_State
         local DefrostSwitchId = 81                  -- Defrost_State
-        local setPoint = domoticz.utils.round(domoticz.devices(thermostaat).setPoint, 2)
         local target_temp = domoticz.devices(66)    -- Fill in IDX of the Pana [Main_Target_Temp]
         local ShiftManual = domoticz.devices(149)   -- Fill in IDX of Your Manual TaShift [temperature thermostat]
         local Shift = 0                             -- Local variable
-
-        -- script default values settings
         local roomTemperature = tonumber(domoticz.devices(roomTemperatureId).rawData[1])
+        local setPoint = domoticz.utils.round(domoticz.devices(thermostaat).setPoint, 2)
 
-        if      ((roomTemperature > setPoint) and
+        if      ((roomTemperature > (setPoint + 0.1)) and
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and
                 (target_temp.temperature <= 26) and
                 (ShiftManual.lastUpdate.minutesAgo >= 90 ))
                 then
-                    if (true == switchWp) then
                     domoticz.devices(wpSwitchId).switchOff()
-                    domoticz.notify('De warmtepomp is uitgezet door de thermostaat')
-                    domoticz.log('WP UIT gezet: Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-                    end
-        elseif  ((roomTemperature > setPoint) and
+                    domoticz.notify('Heatpump turned off by thermostat')
+                    domoticz.log('Heatpump turned off: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+        
+        elseif  ((roomTemperature > (setPoint + 0.1)) and  --
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and
                 (target_temp.temperature > 26) and
                 (ShiftManual.lastUpdate.minutesAgo >= 90 )) then
-                    if (true == switchWp) then
                     Shift=((ShiftManual.setPoint) - 1)
                     ShiftManual.updateSetPoint(Shift)
-                    domoticz.notify('Correctie stooklijn: '..Shift)
-                    domoticz.log('Correctie stooklijn: '..Shift.. 'Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-                    end
+                    domoticz.notify('Correction heating curve: '..Shift)
+                    domoticz.log('Correction heating curve: '..Shift.. 'Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+        
         elseif  ((roomTemperature < (setPoint-0.2)) and
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and
-                (ShiftManual.lastUpdate.minutesAgo >= 90 )) then
-                    if (true == switchWp) then
+                (ShiftManual.lastUpdate.minutesAgo >= 90 ) and
+                (domoticz.time.hour > 8 and domoticz.time.hour < 22) and
+                (wpSwitchId.lastUpdate.minutesAgo > 90)) then
                     Shift=((ShiftManual.setPoint) + 1)
                     ShiftManual.updateSetPoint(Shift)
-                    domoticz.notify('Correctie stooklijn: '..Shift)
-                    domoticz.log('Correctie stooklijn: '..Shift.. 'Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-                    end
+                    domoticz.notify('Correction heating curve: '..Shift)
+                    domoticz.log('Correction heating curve: '..Shift.. 'Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+        
         elseif  ((roomTemperature < setPoint) and 
                 (domoticz.devices(wpSwitchId).state == 'Off')) then
-                    if (true == switchWp) then
                     domoticz.devices(wpSwitchId).switchOn()
-                    domoticz.notify('De warmtepomp is aangezet door de thermostaat')
-                    domoticz.log('WP AAN gezet: Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-                    end
-        elseif  ((target_temp.temperature < 26) and
+                    domoticz.notify('Heatpump turned on by thermostat')
+                    domoticz.log('Heatpump turned on by thermostat: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+        
+        elseif  ((target_temp.temperature < 26) and  -- Make sure Ta-target never gets below 26
                 (ShiftManual.setPoint <= -1)) then
-                    if (true == switchWp) then
                     Shift=0
                     ShiftManual.updateSetPoint(Shift)
-                    domoticz.log('Ta-doel onder de 26 gekomen --> Shift manual op [0] gezet', domoticz.LOG_DEBUG)
-                    end
+                    domoticz.log('Target water outlet temperature below 26 --> Shift manual set to [0]', domoticz.LOG_DEBUG)
+        
         elseif  ((roomTemperature > (setPoint + 1)) or
-                (roomTemperature < (setPoint - 1.0))) and
+                (roomTemperature < (setPoint - 1))) and
                 (domoticz.devices(wpSwitchId).state == 'On') then
-                    if (true == switchWp) then
-                    domoticz.notify('Check WP die aan staat! Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ')
-                    domoticz.log('Check WP die aan staat! Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-                    end 
+                    domoticz.notify('Check heatpump which is on! Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ')
+                    domoticz.log('Check heatpump which is on! Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+        
         elseif  (roomTemperature > (setPoint - 1)) and
                 (roomTemperature < (setPoint + 1) and
                 (domoticz.devices(wpSwitchId).state == 'On')) then
-                    if (true == switchWp) then
-                    domoticz.log('WP AAN en niet veranderd: Temperatuur binnen is: '.. roomTemperature .. ' oC en doeltemperatuur is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-                    end    
-        end
+                    domoticz.log('Heatpump is ON and not changed: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+        
+         elseif (domoticz.devices(wpSwitchId).state == 'Off') then
+                    domoticz.log('Heatpump is OFF. Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+                    end
+        
         domoticz.devices(thermostaat).updateSetPoint(setPoint) -- update dummy sensor in case of red indicator ;-)
-        domoticz.log('Einde script. Shiftmanueel laatst getriggerd: ' .. ShiftManual.lastUpdate.minutesAgo..' minuten geleden', domoticz.LOG_INFO)
+        domoticz.log('End script. Shift manual last triggered: ' .. ShiftManual.lastUpdate.minutesAgo..' minutes ago', domoticz.LOG_INFO)
     end
 }
