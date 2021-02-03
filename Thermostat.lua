@@ -12,11 +12,11 @@ return {
 
     execute = function(domoticz, item)
 
-        local thermostaat = 146                     -- Dummy thermostaat device
+        local thermostaat = 146                     -- Dummy thermostat device
         local roomTemperatureId = 42                -- Temperature measurement
-        local wpSwitchId = 60                       -- Heatpump_State
-        local DefrostSwitchId = 81                  -- Defrost_State
-        local target_temp = domoticz.devices(66)    -- Fill in IDX of the Pana [Main_Target_Temp]
+        local wpSwitchId = 60                       -- Heatpump_State [On/Off]
+        local DefrostSwitchId = 81                  -- Defrost_State [On/Off]
+        local target_temp = domoticz.devices(66)    -- Water outlet target temperature [PANA: Main_Target_Temp]
         local ShiftManual = domoticz.devices(149)   -- Fill in IDX of Your Manual TaShift [Device: thermostat setpoint]
         local Shift = 0                             -- Local variable
         local roomTemperature = tonumber(domoticz.devices(roomTemperatureId).rawData[1])
