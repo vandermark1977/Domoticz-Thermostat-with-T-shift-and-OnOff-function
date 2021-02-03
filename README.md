@@ -1,4 +1,4 @@
-# Domoticz-Thermostat-with-T-shift-and-OnOff-function
+# Domoticz Thermostat with T-shift and OnOff function
 Simple thermostat for heatpump with two adjustments: 
 
 (1)Shift Target outlet watertemperature based on thermostat device: When roomtemperature is higher then setpoint --> Shift(-1) Target outlet water temperature.
