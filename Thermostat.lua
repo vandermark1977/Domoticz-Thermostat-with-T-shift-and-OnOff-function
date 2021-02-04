@@ -22,26 +22,33 @@ return {
         local roomTemperature = tonumber(domoticz.devices(roomTemperatureId).rawData[1])
         local setPoint = domoticz.utils.round(domoticz.devices(thermostaat).setPoint, 2)
 
+      -------------------------------------------------------------------------------
+      -- (A) Room T > setpoint --> Heatpump turned off because water outlet temp is at lowest value      
+      -------------------------------------------------------------------------------
         if      ((roomTemperature > (setPoint + 0.1)) and
                 (domoticz.devices(wpSwitchId).state == 'On') and
-                (domoticz.devices(DefrostSwitchId).state == 'Off') and
+                (domoticz.devices(DefrostSwitchId).state == 'Off') and  --Not during a defrost
                 (target_temp.temperature <= 26) and
-                (ShiftManual.lastUpdate.minutesAgo >= 90 ))
+                (ShiftManual.lastUpdate.minutesAgo >= 90 ))  -- Too prevent Turn off too soon after a T-Shift
                 then
                     domoticz.devices(wpSwitchId).switchOff()
                     domoticz.notify('Heatpump turned off by thermostat')
                     domoticz.log('Heatpump turned off: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-        
+      -------------------------------------------------------------------------------
+      -- (B) Room T > setpoint --> Shift water temperature -1      
+      -------------------------------------------------------------------------------        
         elseif  ((roomTemperature > (setPoint + 0.1)) and  --
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and
                 (target_temp.temperature > 26) and
-                (ShiftManual.lastUpdate.minutesAgo >= 90 )) then
+                (ShiftManual.lastUpdate.minutesAgo >= 90 )) then -- Too prevent T-shifts happening too soon after the last one. 
                     Shift=((ShiftManual.setPoint) - 1)
                     ShiftManual.updateSetPoint(Shift)
                     domoticz.notify('Correction heating curve: '..Shift)
                     domoticz.log('Correction heating curve: '..Shift.. 'Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-        
+      -------------------------------------------------------------------------------
+      -- (C) Room T < setpoint --> Shift water temperature +1      
+      -------------------------------------------------------------------------------               
         elseif  ((roomTemperature < (setPoint-0.2)) and
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and
@@ -52,13 +59,18 @@ return {
                     ShiftManual.updateSetPoint(Shift)
                     domoticz.notify('Correction heating curve: '..Shift)
                     domoticz.log('Correction heating curve: '..Shift.. 'Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
+      -------------------------------------------------------------------------------
+      -- (D) Room T < setpoint and heatpump is off -->  Turn heatpump on again      
+      -------------------------------------------------------------------------------               
         
         elseif  ((roomTemperature < setPoint) and 
                 (domoticz.devices(wpSwitchId).state == 'Off')) then
                     domoticz.devices(wpSwitchId).switchOn()
                     domoticz.notify('Heatpump turned on by thermostat')
                     domoticz.log('Heatpump turned on by thermostat: Room temperature is: '.. roomTemperature .. ' oC and Setpoint is: '  .. setPoint .. ' oC ', domoticz.LOG_DEBUG)
-        
+      -------------------------------------------------------------------------------
+      -- (E) Various LOGS for different situations      
+      -------------------------------------------------------------------------------              
         elseif  ((roomTemperature > (setPoint + 1)) or
                 (roomTemperature < (setPoint - 1))) and
                 (domoticz.devices(wpSwitchId).state == 'On') then
