@@ -1,5 +1,5 @@
 # Domoticz Thermostat with heatcurve-shift and OnOff function for Panasonic heatpump
-Simple Domoticz thermostat for Panasonic heatpump. 
+Simple Domoticz DzVents thermostat for a Panasonic heatpump. 
 
 ## Prerequisits:
 * You have setup the heatpump with a Heatcurve for the water outlet temperature. The built in thermostat of the Panasonic heatpump must be turned off.
