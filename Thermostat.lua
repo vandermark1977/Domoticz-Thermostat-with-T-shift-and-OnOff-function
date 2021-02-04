@@ -7,7 +7,7 @@ return {
 
         logging = {
             level = domoticz.LOG_DEBUG, -- LOG_DEBUG or LOG_ERROR
-            marker = "Thermostaat: "
+            marker = "Thermostat: "
         },
 
     execute = function(domoticz, item)
