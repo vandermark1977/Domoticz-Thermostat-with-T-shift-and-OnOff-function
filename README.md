@@ -1,9 +1,10 @@
 # Domoticz Thermostat with heatcurve-shift and OnOff function for Panaosonic heatpimp
-Simple Domoticz thermostat for Panasonic heatpump. Prerequisits:
+Simple Domoticz thermostat for Panasonic heatpump. 
 
-(A). You have setup the heatpump with a Heatcurve for the water outlet temperature. The built in thermostat of the Panasonic heatpump must be turned off.
-(B). Script works in combination with the Domoticz HeishamonMQTT plugin (https://github.com/MarFanNL/HeishamonMQTT/tree/main) and the heishamon control board (https://www.tindie.com/stores/thehognl/)
-(C) In Domoticz you have an accurate room temperature measurement available.
+## Prerequisits:
+* You have setup the heatpump with a Heatcurve for the water outlet temperature. The built in thermostat of the Panasonic heatpump must be turned off.
+* Script works in combination with the [Domoticz HeishamonMQTT plugin](https://github.com/MarFanNL/HeishamonMQTT/tree/main) and the [heishamon control board](https://www.tindie.com/stores/thehognl/)
+* In Domoticz you have an accurate room temperature measurement available.
 
 The thermostat script works with two functions to control the room temperature: 
 
