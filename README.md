@@ -1,4 +1,4 @@
-# Domoticz Thermostat with heatcurve-shift and OnOff function for Panaosonic heatpimp
+# Domoticz Thermostat with heatcurve-shift and OnOff function for Panasonic heatpump
 Simple Domoticz thermostat for Panasonic heatpump. 
 
 ## Prerequisits:
