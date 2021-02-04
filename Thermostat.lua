@@ -12,13 +12,13 @@ return {
 
     execute = function(domoticz, item)
 
-        local thermostaat = 146                     -- Dummy thermostat device
-        local roomTemperatureId = 42                -- Temperature measurement
+        local thermostaat = 146                     -- Dummy thermostat device. You use this device to set the target for the room temperature
+        local roomTemperatureId = 42                -- Temperature measurement device of the room yoy want to control
         local wpSwitchId = 60                       -- Heatpump_State [On/Off]
         local DefrostSwitchId = 81                  -- Defrost_State [On/Off]
         local target_temp = domoticz.devices(66)    -- Water outlet target temperature [PANA: Main_Target_Temp]
-        local ShiftManual = domoticz.devices(149)   -- Fill in IDX of Your Manual TaShift [Device: thermostat setpoint]
-        local Shift = 0                             -- Local variable
+        local ShiftManual = domoticz.devices(149)   -- Fill in IDX of Your Manual TaShift. If youy don't use my Slowstart script, Fill in the normal Shift IDX
+        local Shift = 0                             -- Local variable, dont change
         local roomTemperature = tonumber(domoticz.devices(roomTemperatureId).rawData[1])
         local setPoint = domoticz.utils.round(domoticz.devices(thermostaat).setPoint, 2)
 
