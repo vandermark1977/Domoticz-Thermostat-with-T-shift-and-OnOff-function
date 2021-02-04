@@ -29,7 +29,7 @@ return {
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and  --Not during a defrost
                 (target_temp.temperature <= 26) and
-                (ShiftManual.lastUpdate.minutesAgo >= 90 ))  -- Too prevent Turn off too soon after a T-Shift
+                (ShiftManual.lastUpdate.minutesAgo >= 90 ))  -- Prevent Turn off too soon after a T-Shift
                 then
                     domoticz.devices(wpSwitchId).switchOff()
                     domoticz.notify('Heatpump turned off by thermostat')
@@ -41,7 +41,7 @@ return {
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and
                 (target_temp.temperature > 26) and
-                (ShiftManual.lastUpdate.minutesAgo >= 90 )) then -- Too prevent T-shifts happening too soon after the last one. 
+                (ShiftManual.lastUpdate.minutesAgo >= 90 )) then -- Prevent T-shift happening too soon after the last one. 
                     Shift=((ShiftManual.setPoint) - 1)
                     ShiftManual.updateSetPoint(Shift)
                     domoticz.notify('Correction heating curve: '..Shift)
