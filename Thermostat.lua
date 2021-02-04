@@ -25,7 +25,7 @@ return {
       -------------------------------------------------------------------------------
       -- (A) Room T > setpoint --> Heatpump turned off because water outlet temp is at lowest value      
       -------------------------------------------------------------------------------
-        if      ((roomTemperature > (setPoint + 0.1)) and
+        if      ((roomTemperature > (setPoint + 0.1)) and  -- I use a small hysteresis of 0.1 degrees. Adjust to your situation
                 (domoticz.devices(wpSwitchId).state == 'On') and
                 (domoticz.devices(DefrostSwitchId).state == 'Off') and  --Not during a defrost
                 (target_temp.temperature <= 26) and
@@ -63,7 +63,7 @@ return {
       -- (D) Room T < setpoint and heatpump is off -->  Turn heatpump on again      
       -------------------------------------------------------------------------------               
         
-        elseif  ((roomTemperature < setPoint) and 
+        elseif  ((roomTemperature < setPoint) and -- Add hysteresis if needed in your situation
                 (domoticz.devices(wpSwitchId).state == 'Off')) then
                     domoticz.devices(wpSwitchId).switchOn()
                     domoticz.notify('Heatpump turned on by thermostat')
